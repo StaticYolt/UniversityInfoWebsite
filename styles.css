@@ -1,0 +1,47 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    padding: 20px;
+}
+
+/* Vertical Marquee */
+.vertical-marquee {
+width: 80%;
+margin: 0 auto;
+height: 40rem;                /* visible window */
+overflow: hidden;
+position: relative;
+border: 0.1rem solid #000;
+background-color: rgb(198, 236, 198);
+box-sizing: border-box;
+}
+
+.marquee-content {
+display: flex;
+flex-direction: column;
+will-change: transform
+/* position: absolute;
+width: 100%;
+animation: vertical-loop 6s linear infinite; */
+}
+
+.vertical-marquee .item {
+height: 10rem;                /* match container height */
+padding: 1rem;
+box-sizing: border-box;
+}
+
+a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
