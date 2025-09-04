@@ -1,40 +1,42 @@
 body {
-    font-family: Arial, sans-serif;
-    background: #f8f9fa;
+    font-family: sans-serif, Arial;
+    background: #BA0C2F;
     margin: 0;
     padding: 0;
 }
 
 h1 {
     text-align: center;
+    font-size: 4rem;
     padding: 20px;
+    margin-bottom: 1rem;
+    color: #FFFFFF
 }
 
 /* Vertical Marquee */
 .vertical-marquee {
-width: 80%;
-margin: 0 auto;
-height: 40rem;                /* visible window */
-overflow: hidden;
-position: relative;
-border: 0.1rem solid #000;
-background-color: rgb(198, 236, 198);
-box-sizing: border-box;
+    width: 80%;
+    margin: 0 auto;
+    height: 45rem;                /* visible window */
+    overflow: hidden;
+    position: relative;
+    border: 0.5rem solid #000;
+    background-color: #A7B1B7;
+    box-sizing: border-box;
 }
 
 .marquee-content {
-display: flex;
-flex-direction: column;
-will-change: transform
-/* position: absolute;
-width: 100%;
-animation: vertical-loop 6s linear infinite; */
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
 }
 
 .vertical-marquee .item {
-height: 10rem;                /* match container height */
-padding: 1rem;
-box-sizing: border-box;
+    font-size: 2rem;
+    padding: 1rem;
+    margin-top: .5rem;
+    margin-bottom: .5rem;
+    box-sizing: border-box;
 }
 
 a {
@@ -44,4 +46,17 @@ a {
 
 a:hover {
     text-decoration: underline;
+}
+
+#search-container {
+    width: 80%;
+    margin: 1rem auto;
+    display: none;
+    text-align: center;
+}
+
+#search-box {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
 }
