@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Career Opportunities</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* Vertical Marquee */
+    .vertical-marquee {
+    width: 80%;
+    margin: 0 auto;
+    height: 40rem;                /* visible window */
+    overflow: hidden;
+    position: relative;
+    border: 0.1rem solid #000;
+    background-color: rgb(198, 236, 198);
+    box-sizing: border-box;
+    }
+
+    .marquee-content {
+    display: flex;
+    flex-direction: column;
+    will-change: transform
+    /* position: absolute;
+    width: 100%;
+    animation: vertical-loop 6s linear infinite; */
+    }
+
+    .vertical-marquee .item {
+    height: 10rem;                /* match container height */
+    padding: 1rem;
+    box-sizing: border-box;
+    }
+
+    a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Career Resources & Events</h1>
+  <div class="vertical-marquee" id="vertical-marquee">
+    <div class="marquee-content" id="marquee"></div>
+  </div>
+
+  <script>
+    fetch("data.json")
+      .then(res => res.json())
+      .then(data => {
+        const marquee = document.getElementById("marquee");
+        data.filter(item => item.show).forEach(item => {
+          const div = document.createElement("div");
+          div.className = "item";
+          div.innerHTML = `
+            <strong>${item.title}</strong><br>
+            ${item.description}<br>
+            ${item.date ? `<em>${item.date}</em><br>` : ""}
+            <a href="${item.link}" target="_blank">Learn More</a>
+          `;
+          marquee.appendChild(div);
+        });
+      });
+
+    const container = document.getElementById("vertical-marquee");
+    const content = document.getElementById("marquee");
+    
+    content.innerHTML += content.innerHTML;
+      let scrollPos = 0;
+      let speed = 1;
+      function scrollMarquee() {
+      scrollPos += speed;
+      if (scrollPos >= content.scrollHeight) {
+        console.log(container.style.height)
+        scrollPos = -container.offsetHeight;
+      }
+      content.style.transform = `translateY(${-scrollPos}px)`;
+      requestAnimationFrame(scrollMarquee);
+    }
+
+    scrollMarquee();
+  </script>
+</body>
+</html>
+
