@@ -25,5 +25,14 @@
     "date": null,
     "link": "https://careers.osu.edu/resources/resume-review",
     "show": true
+  },
+  {
+    "id": "4",
+    "type": "resource",
+    "title": "Resume Review Drop-In Hours v2",
+    "description": "Stop by during drop-in hours to get your resume reviewed by a peer career coach. No appointment needed!",
+    "date": null,
+    "link": "https://careers.osu.edu/resources/resume-review",
+    "show": true
   }
 ]

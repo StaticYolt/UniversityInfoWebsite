@@ -1,26 +1,36 @@
-fetch("data.json")
-    .then(res => res.json())
-    .then(data => {
-    const marquee = document.getElementById("marquee");
-    data.filter(item => item.show).forEach(item => {
-        const div = document.createElement("div");
-        div.className = "item";
-        div.innerHTML = `
-        <strong>${item.title}</strong><br>
-        ${item.description}<br>
-        ${item.date ? `<em>${item.date}</em><br>` : ""}
-        <a href="${item.link}" target="_blank">Learn More</a>
-        `;
-        marquee.appendChild(div);
-    });
-    });
+//create toggle whether you want event or resouce
+//if there are dates for an event push it up
 
 const container = document.getElementById("vertical-marquee");
 const content = document.getElementById("marquee");
 const searchContainer = document.getElementById("search-container");
 const searchBox = document.getElementById("search-box");
+const filterContainer = document.getElementById("filter-container");
 
-content.innerHTML += content.innerHTML;
+let itemsData = [];
+
+fetch("data.json")
+  .then(res => res.json())
+  .then(data => {
+    itemsData = data.filter(item => item.show);
+    renderItems(itemsData);
+
+});
+function renderItems(items) {
+  content.innerHTML = "";
+  items.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.dataset.type = item.type; // save type for filtering
+    div.innerHTML = `
+      <strong>${item.title}</strong><br>
+      ${item.description}<br>
+      ${item.date ? `<em>${item.date}</em><br>` : ""}
+      <a href="${item.link}" target="_blank">Learn More</a>
+    `;
+    content.appendChild(div);
+  });
+}
 let scrollPos = 0;
 let speed = .8;
 let paused = false;
@@ -46,16 +56,16 @@ container.addEventListener("click", () => {
         container.style.overflowY = "auto";
         content.style.transform = ""; // reset transform
         searchContainer.style.display = "block";
+        filterContainer.style.display = "block";
     } else {
     // Resume auto-scroll
         container.scrollTop = 0;
         container.style.overflow = "hidden";
         searchContainer.style.display = "none";
+        filterContainer.style.display = "none";
         scrollPos = 0;
         
-        document.querySelectorAll(".item").forEach(div => {
-            div.style.display = "block";
-        });
+        renderItems(itemsData);
         searchBox.value = "";
     }
 });
@@ -66,4 +76,13 @@ searchBox.addEventListener("input", () => {
         const text = div.innerText.toLowerCase();
         div.style.display = text.includes(query) ? "block" : "none";
     });
+});
+
+filterContainer.addEventListener("click", e => {
+  if (e.target.tagName === "BUTTON") {
+    const type = e.target.dataset.type;
+    document.querySelectorAll(".item").forEach(div => {
+      div.style.display = div.dataset.type === type ? "block" : "none";
+    });
+  }
 });
