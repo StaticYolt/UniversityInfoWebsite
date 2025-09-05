@@ -1,12 +1,13 @@
-import os
 import re
 import json
-import time
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
+from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
 
-# ---- OPTIONAL Playwright fallback (for JS-rendered iframes) ----
+# ---- OPTIONAL Playwright fallback ----
 USE_PLAYWRIGHT = True
 try:
     from playwright.sync_api import sync_playwright
@@ -18,6 +19,14 @@ HEADERS = {
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
                   "Chrome/125.0.0.0 Safari/537.36"
 }
+
+# ---- MongoDB setup ----
+
+load_dotenv()
+mongo_uri = os.getenv("MONGO_URI")
+DB_NAME = "Feeddata"
+client = MongoClient(mongo_uri)
+db = client[DB_NAME]
 
 def get_html(url, timeout=20):
     resp = requests.get(url, headers=HEADERS, timeout=timeout)
@@ -41,23 +50,13 @@ def load_html_with_playwright(url, wait_selector=None, timeout_ms=15000):
         return html
 
 def extract_iframe_srcs(page_url):
-    """Fetch the main page and return absolute iframe src URLs."""
+    """Return absolute iframe src URLs from the main page."""
     html = get_html(page_url)
     soup = BeautifulSoup(html, "html.parser")
-    srcs = []
-    for iframe in soup.find_all("iframe"):
-        src = iframe.get("src")
-        if src:
-            srcs.append(urljoin(page_url, src))
-    return srcs
+    return [urljoin(page_url, iframe.get("src")) for iframe in soup.find_all("iframe") if iframe.get("src")]
 
 def parse_items_from_soup(soup):
-    """
-    Extract items from a soup that uses classes like:
-      .fw-feed-item, .fw-feed-item-title, .fw-feed-item-description, .fw-feed-item-date
-    Returns list of normalized dicts.
-    """
-    # print(soup)
+    """Parse items into normalized dicts."""
     items = []
     for div in soup.select(".fw-feed-item"):
         title_el = div.select_one(".fw-feed-item-title")
@@ -65,70 +64,45 @@ def parse_items_from_soup(soup):
         date_el = div.select_one(".fw-feed-item-date")
         link = None
 
-        # Some widgets place the URL in a clickable container with onclick="window.open('URL','_blank')"
         clickable = div.select_one(".fw-feed-item-url")
         if clickable:
             onclick = clickable.get("onclick") or clickable.get("onkeypress")
             if onclick:
-                # Extract first quoted URL
                 m = re.search(r"window\.open\('([^']+)'", onclick)
                 if m:
                     link = m.group(1)
 
-        item = {
+        item_type = "resource"
+        if link:
+            if "events" in link:
+                item_type = "event"
+            elif "jobs" in link:
+                item_type = "job"
+
+        items.append({
             "title": title_el.get_text(strip=True) if title_el else "Untitled",
             "description": desc_el.get_text(strip=True) if desc_el else "",
             "date": date_el.get_text(strip=True) if date_el else None,
             "link": link,
-            # Infer type from URL if possible; adjust to your rules
-            "type": ("event" if (link and "events" in link) else
-                     "job" if (link and "jobs" in link) else
-                     "resource"),
+            "type": item_type,
             "show": True
-        }
-        items.append(item)
+        })
     return items
 
 def scrape_iframe_page(iframe_url):
-    """
-    Try plain requests first. If we don't find items and Playwright is available,
-    try a JS-rendered fetch.
-    """
-    # 1) Try standard HTTP fetch
-    # try:
-    #     html = get_html(iframe_url)
-    #     print(html) 
-    #     soup = BeautifulSoup(html, "html.parser")
-    #     items = parse_items_from_soup(soup)
-    #     print("standard")
-    #     if items:
-    #         return items
-    # except Exception as e:
-    #     print(f"Requests fetch failed for {iframe_url}: {e}")
-
-    # 2) Fallback to Playwright (if enabled)
+    """Scrape inside iframe using requests or Playwright."""
     if USE_PLAYWRIGHT:
         try:
-            # If you know a selector that appears when items are rendered, put it here:
             html = load_html_with_playwright(iframe_url, wait_selector=".fw-feed-item")
             if html:
-                soup = BeautifulSoup(html, "html.parser")
-                items = parse_items_from_soup(soup)
-                if items:
-                    return items
+                return parse_items_from_soup(BeautifulSoup(html, "html.parser"))
         except Exception as e:
             print(f"Playwright fetch failed for {iframe_url}: {e}")
-
-    # Nothing found
     return []
 
 def scrape_main_page_and_iframes(page_url):
-    """
-    Pull items from the main page AND from any iframes it embeds.
-    """
     all_items = []
 
-    # Main page scrape (in case items are also present outside iframes)
     try:
         main_html = get_html(page_url)
         main_soup = BeautifulSoup(main_html, "html.parser")
@@ -136,40 +110,33 @@ def scrape_main_page_and_iframes(page_url):
     except Exception as e:
         print(f"Failed to fetch main page {page_url}: {e}")
 
-    # Iframes
     try:
-        iframe_srcs = extract_iframe_srcs(page_url)
-        for src in iframe_srcs:
+        for src in extract_iframe_srcs(page_url):
             print(f"→ Scraping iframe: {src}")
-            items = scrape_iframe_page(src)
-            all_items.extend(items)
+            all_items.extend(scrape_iframe_page(src))
     except Exception as e:
         print(f"Failed while processing iframes: {e}")
 
-    # Deduplicate by link (if available)
-    seen = set()
-    deduped = []
+    # Deduplicate
+    seen, deduped = set(), []
     for it in all_items:
         key = it.get("link") or (it.get("title"), it.get("date"))
         if key not in seen:
             seen.add(key)
             deduped.append(it)
-
     return deduped
 
-if __name__ == "__main__":
-    # Example uses:
+def save_to_mongodb(items):
+    """Insert items into jobs, events, resources collections."""
+    for item in items:
+        collection = db[item["type"] + "s"]  # jobs, events, resources
+        # upsert by link (or title+date if link missing)
+        query = {"link": item["link"]} if item["link"] else {"title": item["title"], "date": item["date"]}
+        collection.update_one(query, {"$set": item}, upsert=True)
 
-    # A) You have the MAIN PAGE URL that contains the iframe(s):
+if __name__ == "__main__":
     MAIN_PAGE = "https://asccareersuccess.osu.edu/"
     items = scrape_main_page_and_iframes(MAIN_PAGE)
-    print(f"Found {len(items)} items.")
-    print(json.dumps(items[:3], indent=2, ensure_ascii=False))
-    with open("datatest.json", "w", encoding="utf-8") as f:
-        f.write(json.dumps(items, indent=2, ensure_ascii=False))
-    # B) Or you already have the iframe src from the page, e.g.:
-    #    <iframe src="https://feed.mikle.com/widget/v2/171428/?preloader-text=Loading&"...>
-    # Just call scrape_iframe_page directly:
-    # iframe_src = "https://feed.mikle.com/widget/v2/171428/?preloader-text=Loading&"
-    # items = scrape_iframe_page(iframe_src)
-    # print(json.dumps(items[:3], indent=2, ensure_ascii=False))
+    print(f"✅ Found {len(items)} items.")
+    save_to_mongodb(items)
+    print("✅ Data saved to MongoDB.")

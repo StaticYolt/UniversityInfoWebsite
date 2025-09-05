@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "type": "job",
+    "title": "Bloom Energy Summer Intern Program 2026 (Delaware)",
+    "description": "At Bloom Energy, our vision for a world powered by clean, reliable, and affordable energy is more than just words—it's our mission.",
+    "date": "Sep 4, 2025 12:08 AM",
+    "link": "https://osu.joinhandshake.com/jobs/10254415/share_preview",
+    "show": true
+  },
+  {
+    "id": "2",
+    "type": "event",
+    "title": "ASC: Career Readiness Workshop: Arts Scholars",
+    "description": "Prepare for your future career with this interactive readiness workshop designed for Arts Scholars.",
+    "date": "Sep 10, 2025",
+    "link": "https://osu.joinhandshake.com/events/1782734/share_preview",
+    "show": true
+  },
+  {
+    "id": "3",
+    "type": "resource",
+    "title": "Resume Review Drop-In Hours",
+    "description": "Stop by during drop-in hours to get your resume reviewed by a peer career coach. No appointment needed!",
+    "date": null,
+    "link": "https://careers.osu.edu/resources/resume-review",
+    "show": true
+  },
+  {
+    "id": "4",
+    "type": "resource",
+    "title": "Resume Review Drop-In Hours v2",
+    "description": "Stop by during drop-in hours to get your resume reviewed by a peer career coach. No appointment needed!",
+    "date": null,
+    "link": "https://careers.osu.edu/resources/resume-review",
+    "show": true
+  }
+]
