@@ -1,0 +1,89 @@
+body {
+    font-family: sans-serif, Arial;
+    background: #BA0C2F;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    text-align: center;
+    font-size: 4rem;
+    padding: 20px;
+    margin-bottom: 1rem;
+    color: #FFFFFF
+}
+
+/* Vertical Marquee */
+.vertical-marquee {
+    width: 80%;
+    margin: 0 auto;
+    height: 45rem;                /* visible window */
+    overflow: hidden;
+    position: relative;
+    border: 0.5rem solid #000;
+    background-color: #A7B1B7;
+    box-sizing: border-box;
+}
+
+.marquee-content {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+}
+
+.vertical-marquee .item {
+    font-size: 2rem;
+    padding: 1rem;
+    margin-top: .5rem;
+    margin-bottom: .5rem;
+    box-sizing: border-box;
+}
+
+a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#search-container {
+    width: 80%;
+    margin: 1rem auto;
+    display: none;
+    text-align: center;
+}
+
+#search-box {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+#filter-container {
+  width: 80%;
+  margin: 1rem auto;
+  display: none;   /* hidden until paused */
+  text-align: center;
+}
+
+#filter-container button {
+  margin: 0 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border: 2px solid #000;
+  border-radius: 5px;
+  background: #fff;
+}
+
+#filter-container button:hover {
+  background: #ddd;
+}
+
+#filter-container button.active {
+  background: #0066cc;
+  color: white;
+  border-color: #004080;
+}
