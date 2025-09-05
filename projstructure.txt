@@ -1,0 +1,12 @@
+project/
+├── scraper/
+│   ├── scraper.py          # scrapes, pushes data to MongoDB, then dumps JSON
+│   └── requirements.txt
+├── site/
+│   ├── index.html
+│   ├── styles.css
+│   ├── script.js
+│   └── data.json           # auto-updated daily
+└── .github/
+    └── workflows/
+        └── update.yml      # GitHub Action
