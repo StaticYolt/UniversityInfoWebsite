@@ -10,13 +10,29 @@ const filterContainer = document.getElementById("filter-container");
 let itemsData = [];
 let activeFilters = { event: true, resource: true, job: true };
 
+// fetch("data.json")
+//   .then(res => res.json())
+//   .then(data => {
+//     itemsData = data.filter(item => item.show);
+//     updateFilterButtons();
+//     renderItems(itemsData);
+
+// });
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
+
 fetch("data.json")
   .then(res => res.json())
   .then(data => {
-    itemsData = data.filter(item => item.show);
+    // Filter + shuffle only "show: true"
+    itemsData = shuffleArray(data.filter(item => item.show));
     updateFilterButtons();
     renderItems(itemsData);
-
 });
 function renderItems(items) {
   content.innerHTML = "";
