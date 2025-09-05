@@ -25,7 +25,7 @@ HEADERS = {
 load_dotenv()
 mongo_uri = os.getenv("MONGO_URI")
 DB_NAME = "Feeddata"
-client = MongoClient(mongo_uri)
+client = MongoClient(mongo_uri, tls=True)
 db = client[DB_NAME]
 
 def get_html(url, timeout=20):
