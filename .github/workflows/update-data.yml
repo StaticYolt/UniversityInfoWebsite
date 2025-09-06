@@ -21,14 +21,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r scraper/requirements.txt
           playwright install --with-deps chromium
 
       - name: Run scraper
         env:
           MONGO_URI: ${{ secrets.MONGO_URI }} # if you still use MongoDB
         run: |
-          python scraper.py
+          python scraper/scraper.py
 
       - name: Commit updated data.json
         run: |

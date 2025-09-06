@@ -46,6 +46,7 @@ function renderItems(items) {
       ${item.date ? `<em>${item.date}</em><br>` : ""}
       <a href="${item.link}" target="_blank">Learn More</a>
     `;
+    console.log(item.title)
     content.appendChild(div);
   });
 }
