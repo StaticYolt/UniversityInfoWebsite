@@ -39,12 +39,7 @@ def export_all():
             items.append(normalize_item(doc, idx, dtype))
             idx += 1
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))  # directory of scraper.py
-    site_dir = os.path.join(script_dir, "..", "site")
-    os.makedirs(site_dir, exist_ok=True)
-
-    output_path = os.path.join(site_dir, "data.json")
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open("data.json", "w", encoding="utf-8") as f:
         json.dump(items, f, indent=2, ensure_ascii=False)
 
     print(f"✅ Exported {len(items)} items to data.json")
